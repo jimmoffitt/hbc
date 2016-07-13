@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import sun.misc.BASE64Encoder;
+import javax.xml.bind.DatatypeConverter;
 
 /**
  * Thread-safe.
@@ -140,10 +140,9 @@ class ClientBase implements Runnable {
           }
           auth.signRequest(request, postContent);
           
-          /PTv2 update: Explicitly adding Authorization header with Base64 encoded username and password. 
-          BASE64Encoder encoder = new BASE64Encoder();
+          //PTv2 update: Explicitly adding Authorization header with Base64 encoded username and password. 
           String authToken =  auth.getUsername() + ":" + auth.getPassword();
-          String authValue = "Basic " + encoder.encode(authToken.getBytes());  
+          String authValue = "Basic " + DatatypeConverter.printBase64Binary(authToken.getBytes());
           request.addHeader("Authorization", authValue);
           
           

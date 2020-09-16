@@ -27,13 +27,7 @@ import com.twitter.hbc.core.event.EventType;
 import com.twitter.hbc.core.event.HttpResponseEvent;
 import com.twitter.hbc.core.processor.HosebirdMessageProcessor;
 import com.twitter.hbc.httpclient.auth.Authentication;
-import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.concurrent.BlockingQueue;
@@ -42,7 +36,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import sun.misc.BASE64Encoder;
+import javax.annotation.Nullable;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.http.StatusLine;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Thread-safe.
@@ -139,11 +140,10 @@ class ClientBase implements Runnable {
             postContent = endpoint.getPostParamString();
           }
           auth.signRequest(request, postContent);
-          
-          //PTv2 update: Explicitly adding Authorization header with Base64 encoded username and password. 
-          BASE64Encoder encoder = new BASE64Encoder();
+
+          //PTv2 update: Explicitly adding Authorization header with Base64 encoded username and password.
           String authToken =  auth.getUsername() + ":" + auth.getPassword();
-          String authValue = "Basic " + encoder.encode(authToken.getBytes());  
+          String authValue = "Basic " + Base64.encodeBase64String(authToken.getBytes());
           request.addHeader("Authorization", authValue);
           
           
